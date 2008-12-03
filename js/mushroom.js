@@ -15,6 +15,6 @@
     });
   };
 
-  function mushroomify(this, options) {
+  function mushroomify(playerElement, options) {
   }
 })(jQuery);

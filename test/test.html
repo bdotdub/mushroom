@@ -11,10 +11,20 @@
 	<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.5.2/jquery-ui.min.js" type="text/javascript"></script>
 	<script src="../js/mushroom.js" type="text/javascript"></script>
 	
+  <script type="text/javascript">
+    $(document).ready(function() {
+      $('#player').mushroom();
+    });
+  </script>
+  
 </head>
 
 <body>
-
+  <div id="player">
+    <div class="play">play</div>
+    <div class="stop">stop</div>
+    <div class="pause">pause</div>
+  </div>
 
 </body>
 </html>
