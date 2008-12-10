@@ -494,7 +494,7 @@ function SoundManager(smURL,smID) {
   
   this._normalizeMovieURL = function(smURL) {
     if (smURL) {
-      if (smURL.match(/.swf/)) {
+      if (smURL.match(/.swf$/)) {
         smURL = smURL.substr(0,smURL.lastIndexOf('.swf'));
       }
       if (smURL.lastIndexOf('/') != smURL.length-1) {
