@@ -1,0 +1,45 @@
+* { margin: 0; padding: 0; }
+
+body {
+  font-family: Helvetica, Arial, "MS Trebuchet", sans-serif;
+  font-size: 14px;
+  line-height: 1.3em;
+  padding: 10px;
+}
+
+#soundmanager-debug {
+  position: fixed;
+  bottom: 5px;
+  right: 5px;
+  width: 400px;
+  height: 400px;
+  background-color: #fff;
+  overflow: scroll;
+  padding: 5px;
+  font-size: 12px;
+  border: 1px solid #999;
+}
+
+#soundmanager-debug div {
+  margin-bottom: 5px;
+  background-color: #eee;
+  padding: 5px;
+}
+
+#player ul li {
+  display: block;
+  font-size: 18px;
+  background-color: #eee;
+  padding: 10px;
+  margin: 5px;
+  border: 1px solid #eee;
+}
+
+#player ul .playing {
+  border: 1px solid #999;
+}
+
+a {
+  color: #36c;
+  text-decoration: none;
+}
