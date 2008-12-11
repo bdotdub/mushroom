@@ -101,7 +101,7 @@
         // Get the anchor with the URL
         var soundElement = $('a', this);
         if (soundElement.length == 0) {
-          console.warn('No suitable song for this list item');
+          // console.warn('No suitable song for this list item');
           return;
         }
         
@@ -170,8 +170,6 @@
     // Do stuff!
     this.addPlaylistSongs();
     this.hookUpControls();
-    
-    console.log(this);
   };
   
 })(jQuery);
