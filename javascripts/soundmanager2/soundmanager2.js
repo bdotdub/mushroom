@@ -95,8 +95,8 @@ function SoundManager(smURL,smID) {
   this._defaultFlashVersion = 8;
 
   this.filePatterns = {
-    flash8: /.mp3/i,
-    flash9: /.mp3/i
+    flash8: /\.mp3(\?.*)?$/i,
+    flash9: /\.mp3(\?.*)?$/i
   };
 
   this.netStreamTypes = ['aac','flv','mov','mp4','m4v','f4v','m4a','mp4v','3gp','3g2']; // Flash v9.0r115+ "moviestar" formats
@@ -494,7 +494,7 @@ function SoundManager(smURL,smID) {
   
   this._normalizeMovieURL = function(smURL) {
     if (smURL) {
-      if (smURL.match(/.swf$/)) {
+      if (smURL.match(/\.swf(\?.*)?$/i)) {
         smURL = smURL.substr(0,smURL.lastIndexOf('.swf'));
       }
       if (smURL.lastIndexOf('/') != smURL.length-1) {
