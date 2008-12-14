@@ -39,6 +39,32 @@ body {
   border: 1px solid #999;
 }
 
+#player #status {
+  display: block;
+  height: 20px;
+  border: 1px solid #eee;
+}
+
+#player .loading {
+  position: absolute;
+  height: 19px;
+  background-color: #eee;
+}
+
+#player .progress {
+  width: 100%;
+  border: 1px solid #999;
+  height: 19px;
+  position: absolute;
+}
+
+#player .progress-handle {
+  height: 19px;
+  width: 5px;
+  position: relative;
+  background-color: #66e;
+}
+
 a {
   color: #36c;
   text-decoration: none;
