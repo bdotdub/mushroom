@@ -103,107 +103,6 @@
     // Alias this to self
     var self = this;
     
-    // This goes through each of the items in the list and
-    // sets up the sound for it
-    this.addPlaylistSongs = function() {
-      $('ul.playlist li', self.playerElement).each(function() {
-        // Get the anchor with the URL
-        var soundElement = $('a', this);
-        if (soundElement.length == 0) {
-          // console.warn('No suitable song for this list item');
-          return;
-        }
-        
-        // Get the playlist so we can find prev/next
-				if (self.playlist == null) { self.playlist = new Array() }
-				
-				// Find the prev, if any.
-				var prev = null;
-				if (self.playlist.length > 0) {
-				  var prevIndex = self.playlist.length - 1;
-				  prev = self.playlist[prevIndex];
-				}
-				
-				// Get the song URL
-        var soundUrl = soundElement[0].href;
-				
-				// Create a new Spore
-				var spore = new $Spore(self, soundElement, soundUrl, prev);
-				self.playlist.push(spore);
-      });
-      
-      // Set initial current song
-      if (self.playlist.length > 0) {
-        self.currentlyPlaying = self.playlist[0];
-      }
-    };
-    
-    this.hookUpControls = function() {
-      // Setup play button
-      $('.play', self.playerElement).click(function() {
-        if (!playlistHasSongs) { return; }
-        self.currentlyPlaying.play();
-      });
-      
-      // Setup stop button
-      $('.stop', self.playerElement).click(function() {
-        if (!playlistHasSongs) { return; }
-        self.currentlyPlaying.stop();
-      });
-      
-      // Setup pause button
-      $('.pause', self.playerElement).click(function() {
-        if (!playlistHasSongs) { return; }
-        self.currentlyPlaying.pause();
-      });
-      
-      // Back button
-      $('.back', self.playerElement).click(function() {
-        self.goToPreviousSong();
-      });
-      
-      // Next button
-      $('.next', self.playerElement).click(function() {
-        self.goToNextSong();
-      });
-    };
-    
-    this.setUpSlider = function() {
-      // Set up the progress object. I don't know if this is good or not
-      self.progress = {
-        isDragging: false,
-        handle: '.progress-handle',
-        
-        // Fire when the slider starts changing
-        start: function(jqEvent, ui) {
-          // If the event is null, that means it was fired off programmatically
-          if (jqEvent != null) {
-            self.progress.isDragging = true;
-          }
-        },
-        
-        // Fire when the slider stops changing
-        stop: function(jqEvent, ui) {
-          self.progress.isDragging = false;
-          
-          // Figure out where we should be
-          var percent = ui.value;
-          var position = self.currentlyPlaying.soundObj.durationEstimate * (percent / 100);
-          
-          // If the event is null, that means it was fired off programmatically  
-          if (jqEvent != null) {
-            self.currentlyPlaying.soundObj.setPosition(position);
-          }
-        }
-      };
-      
-      // Get the element and get a handle on the slider
-      var sliderElement = $('.progress', self.playerElement);
-      var slider = sliderElement.slider(self.progress);
-      
-      self.progress.slider = slider;
-    }
-    
     this.play = function(spore) {
       // Check if it's the same spore that was clicked
       if (spore == this.currentlyPlaying) {
@@ -271,10 +170,130 @@
       }
     }
     
-    // Do stuff!
-    this.addPlaylistSongs();
-    this.hookUpControls();
-    this.setUpSlider();
+    ///////////////////////////////////////////////////////////
+    // Private functions
+    
+    // This goes through each of the items in the list and
+    // sets up the sound for it
+    var addPlaylistSongs = function() {
+      $('ul.playlist li', self.playerElement).each(function() {
+        // Get the anchor with the URL
+        var soundElement = $('a', this);
+        if (soundElement.length == 0) {
+          // console.warn('No suitable song for this list item');
+          return;
+        }
+        
+        // Get the playlist so we can find prev/next
+				if (self.playlist == null) { self.playlist = new Array() }
+				
+				// Find the prev, if any.
+				var prev = null;
+				if (self.playlist.length > 0) {
+				  var prevIndex = self.playlist.length - 1;
+				  prev = self.playlist[prevIndex];
+				}
+				
+				// Get the song URL
+        var soundUrl = soundElement[0].href;
+				
+				// Create a new Spore
+				var spore = new $Spore(self, soundElement, soundUrl, prev);
+				self.playlist.push(spore);
+      });
+      
+      // Set initial current song
+      if (self.playlist.length > 0) {
+        self.currentlyPlaying = self.playlist[0];
+      }
+    };
+    
+    // This hooks up all the button handlers, ie. play, stop, etc.
+    var hookUpControls = function() {
+      // Setup play button
+      $('.play', self.playerElement).click(function() {
+        if (!playlistHasSongs) { return; }
+        self.currentlyPlaying.play();
+      });
+      
+      // Setup stop button
+      $('.stop', self.playerElement).click(function() {
+        if (!playlistHasSongs) { return; }
+        self.currentlyPlaying.stop();
+      });
+      
+      // Setup pause button
+      $('.pause', self.playerElement).click(function() {
+        if (!playlistHasSongs) { return; }
+        self.currentlyPlaying.pause();
+      });
+      
+      // Back button
+      $('.back', self.playerElement).click(function() {
+        self.goToPreviousSong();
+      });
+      
+      // Next button
+      $('.next', self.playerElement).click(function() {
+        self.goToNextSong();
+      });
+    };
+    
+    // Sets up the two sliders on the player
+    var setUpSliders = function() {
+      setUpProgressSlider();
+    }
+    
+    // Sets up the progress slider and attaches handlers to the
+    // slider handle
+    var setUpProgressSlider = function() {
+      // Set up the progress object. I don't know if this is good or not
+      self.progress = {
+        isDragging: false,
+        handle: '.progress-handle',
+        
+        // Fire when the slider starts changing
+        start: function(jqEvent, ui) {
+          // If the event is null, that means it was fired off programmatically
+          if (jqEvent != null) {
+            self.progress.isDragging = true;
+          }
+        },
+        
+        // Fire when the slider stops changing
+        stop: function(jqEvent, ui) {
+          self.progress.isDragging = false;
+          
+          // Figure out where we should be
+          var percent = ui.value;
+          var position = self.currentlyPlaying.soundObj.durationEstimate * (percent / 100);
+          
+          // If the event is null, that means it was fired off programmatically  
+          if (jqEvent != null) {
+            self.currentlyPlaying.soundObj.setPosition(position);
+          }
+        }
+      };
+      
+      // Get the element and get a handle on the slider
+      var sliderElement = $('.progress', self.playerElement);
+      var slider = sliderElement.slider(self.progress);
+      
+      self.progress.slider = slider;
+    }
+    
+    
+    // Constructor, of sorts.
+    var init = function() {
+      addPlaylistSongs();
+      
+      setUpSliders();
+      
+      hookUpControls();
+    }
+    
+    // Initalize!
+    init();
   };
   
 })(jQuery);
