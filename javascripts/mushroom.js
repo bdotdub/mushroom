@@ -34,13 +34,19 @@
     
     // Play this!
     this.play = function() {
-      self.soundObj.play();
-      self.element.parent().addClass('playing');
+      if (self.soundObj.paused) {
+        self.soundObj.resume();
+      }
+      else {
+        self.soundObj.play();
+      }
+
+      self.element.addClass('playing');
     };
     
     // Stop it
     this.stop = function() {
-      self.element.parent().removeClass('playing');
+      self.element.removeClass('playing');
       self.soundObj.stop();
     }
     
@@ -49,21 +55,21 @@
       self.soundObj.pause();
     }
     
+    // Check if it's playing
+    this.playing = function() {
+      // It is playing only if the playState == 1 and it is not paused
+      return self.soundObj.playState == 1 && !self.soundObj.paused;
+    }
+    
     // Click handler
     this.click = function() {
-      self.mushroom.currentlyPlaying.stop();
-      
-      // Set a currentlyPlaying
-      self.mushroom.currentlyPlaying = self;
-      
-      // Stop and then play
-      soundManager.stopAll();
-      self.play();
+      self.mushroom.play(self);
       
       // Stop the click
       return false;
     };
     
+    // Constructor
     this.init = function() {
       // Set up the links
       var prevSong = self.prevSong;
@@ -76,9 +82,12 @@
       
       // Create the sound object
       self.soundObj = soundManager.createSound({
-			  id:self.url,
-			  url:self.url,
-			  onfinish: self.mushroom.goToNextSong
+			  id: self.url,
+			  url: self.url,
+			  whileloading: self.mushroom.loadingProgress,
+			  whileplaying: self.mushroom.playingProgress,
+			  onfinish: self.mushroom.goToNextSong,
+			  onstop: self.mushroom.songStopped
 			});
     };
     
@@ -89,6 +98,7 @@
     // Properties
     this.playlist           = null;
     this.currentlyPlaying   = null;
+    this.progressSlider     = null;
     this.options            = options;
     
     // Alias this to self
@@ -142,12 +152,50 @@
         self.currentlyPlaying.stop();
       });
       
-      // Setup play button
+      // Setup pause button
       $('.pause', self.playerElement).click(function() {
         if (!playlistHasSongs) { return; }
         self.currentlyPlaying.pause();
       });
+      
+      // Back button
+      $('.back', self.playerElement).click(function() {
+        self.goToPreviousSong();
+      });
+      
+      // Next button
+      $('.next', self.playerElement).click(function() {
+        self.goToNextSong();
+      });
     };
+    
+    this.setUpSlider = function() {
+      self.progressSlider = $('.progress', self.playerElement);
+      self.progressSlider.slider({ handle: '.progress-handle' });
+    }
+    
+    this.play = function(spore) {
+      // Check if it's the same spore that was clicked
+      if (spore == this.currentlyPlaying) {
+        // If it's playing, pause it
+        if (spore.playing()) {
+          spore.pause();
+        }
+        // Else resume!
+        else {
+          spore.play();
+        }
+      }
+      // Else play this song
+      else {
+        // Stop the current song
+        this.currentlyPlaying.stop();
+        
+        // Assign it as the currently playing and play it
+        this.currentlyPlaying = spore;
+        this.currentlyPlaying.play();
+      }
+    }
     
     function playlistHasSongs() {
       return (self.playlist.length > 0);
@@ -155,8 +203,17 @@
     
     // Sound object handlers
     this.goToNextSong = function() {
+      this.goToSong('NEXT');
+    };
+    
+    this.goToPreviousSong = function() {
+      this.goToSong('BACK');
+    };
+    
+    this.goToSong = function(direction) {
       self.currentlyPlaying.stop();
-      self.currentlyPlaying = self.currentlyPlaying.nextSong;
+      self.currentlyPlaying = (direction == 'BACK') ?
+        self.currentlyPlaying.prevSong : self.currentlyPlaying.nextSong;
 
       if (self.currentlyPlaying == null && self.options.repeat) {
         self.currentlyPlaying = self.playlist[0];
@@ -167,9 +224,27 @@
       }
     };
     
+    this.songStopped = function() {
+      self.progressSlider.slider("moveTo", 0)
+    }
+    
+    this.loadingProgress = function() {
+      $('.loading', self.playerElement).css("width", (this.bytesLoaded * 100 / this.bytesTotal) + "%");
+    };
+    
+    this.playingProgress = function() {
+      var currentPosition = (this.position * 100) / this.duration;
+      
+      // If the handle is not being dragged, the update it
+      if (!self.progressSlider.isSliding) {
+        self.progressSlider.slider("moveTo", currentPosition);
+      }
+    }
+    
     // Do stuff!
     this.addPlaylistSongs();
     this.hookUpControls();
+    this.setUpSlider();
   };
   
 })(jQuery);
