@@ -4,7 +4,7 @@ body {
   font-family: Helvetica, Arial, "MS Trebuchet", sans-serif;
   font-size: 14px;
   line-height: 1.3em;
-  padding: 10px;
+  margin: 10px;
 }
 
 #soundmanager-debug {
@@ -39,30 +39,42 @@ body {
   border: 1px solid #999;
 }
 
-#player #status {
+#player .status {
   display: block;
   height: 20px;
   border: 1px solid #eee;
 }
 
-#player .loading {
+#player .status .loading {
   position: absolute;
   height: 19px;
-  background-color: #eee;
+  background-color: #eef;
 }
 
-#player .progress {
+#player .status .progress {
   width: 100%;
   border: 1px solid #999;
   height: 19px;
-  position: absolute;
 }
 
-#player .progress-handle {
+#player .status .progress-handle {
   height: 19px;
-  width: 5px;
+  width: 15px;
   position: relative;
-  background-color: #66e;
+  background-color: #369;
+}
+
+#player .volume {
+  border: 1px solid #666;
+  height:20px;
+  width: 200px;
+}
+
+#player .volume .volume-handle {
+  position: relative;
+  height: 20px;
+  width: 10px;
+  background-color: #999;
 }
 
 a {

@@ -98,7 +98,6 @@
     // Properties
     this.playlist           = null;
     this.currentlyPlaying   = null;
-    this.progressSlider     = null;
     this.options            = options;
     
     // Alias this to self
@@ -170,8 +169,39 @@
     };
     
     this.setUpSlider = function() {
-      self.progressSlider = $('.progress', self.playerElement);
-      self.progressSlider.slider({ handle: '.progress-handle' });
+      // Set up the progress object. I don't know if this is good or not
+      self.progress = {
+        isDragging: false,
+        handle: '.progress-handle',
+        
+        // Fire when the slider starts changing
+        start: function(jqEvent, ui) {
+          // If the event is null, that means it was fired off programmatically
+          if (jqEvent != null) {
+            self.progress.isDragging = true;
+          }
+        },
+        
+        // Fire when the slider stops changing
+        stop: function(jqEvent, ui) {
+          self.progress.isDragging = false;
+          
+          // Figure out where we should be
+          var percent = ui.value;
+          var position = self.currentlyPlaying.soundObj.durationEstimate * (percent / 100);
+          
+          // If the event is null, that means it was fired off programmatically  
+          if (jqEvent != null) {
+            self.currentlyPlaying.soundObj.setPosition(position);
+          }
+        }
+      };
+      
+      // Get the element and get a handle on the slider
+      var sliderElement = $('.progress', self.playerElement);
+      var slider = sliderElement.slider(self.progress);
+      
+      self.progress.slider = slider;
     }
     
     this.play = function(spore) {
@@ -225,7 +255,7 @@
     };
     
     this.songStopped = function() {
-      self.progressSlider.slider("moveTo", 0)
+      self.progress.slider.slider("moveTo", 0)
     }
     
     this.loadingProgress = function() {
@@ -236,8 +266,8 @@
       var currentPosition = (this.position * 100) / this.duration;
       
       // If the handle is not being dragged, the update it
-      if (!self.progressSlider.isSliding) {
-        self.progressSlider.slider("moveTo", currentPosition);
+      if (!self.progress.isDragging) {
+        self.progress.slider.slider("moveTo", currentPosition);
       }
     }
     
