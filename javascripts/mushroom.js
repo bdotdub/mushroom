@@ -103,9 +103,12 @@
     // Alias this to self
     var self = this;
     
+    ///////////////////////////////////////////////////////////
+    // Public functions
+    
     this.play = function(spore) {
       // Check if it's the same spore that was clicked
-      if (spore == this.currentlyPlaying) {
+      if (spore == self.currentlyPlaying) {
         // If it's playing, pause it
         if (spore.playing()) {
           spore.pause();
@@ -118,16 +121,15 @@
       // Else play this song
       else {
         // Stop the current song
-        this.currentlyPlaying.stop();
+        self.currentlyPlaying.stop();
         
         // Assign it as the currently playing and play it
-        this.currentlyPlaying = spore;
-        this.currentlyPlaying.play();
+        self.currentlyPlaying = spore;
+        self.currentlyPlaying.play();
+        
+        // Set the volume to the current volume
+        self.currentlyPlaying.soundObj.setVolume(self.volume.volume.slider("value"))
       }
-    }
-    
-    function playlistHasSongs() {
-      return (self.playlist.length > 0);
     }
     
     // Sound object handlers
@@ -153,6 +155,9 @@
       }
     };
     
+    ///////////////////////////////////////////////////////////
+    // IoC endpoints
+    
     this.songStopped = function() {
       self.progress.slider.slider("moveTo", 0)
     }
@@ -162,7 +167,7 @@
     };
     
     this.playingProgress = function() {
-      var currentPosition = (this.position * 100) / this.duration;
+      var currentPosition = (this.position * 100) / this.durationEstimate;
       
       // If the handle is not being dragged, the update it
       if (!self.progress.isDragging) {
@@ -171,7 +176,56 @@
     }
     
     ///////////////////////////////////////////////////////////
+    // Progress slider stuff
+    
+    // Default progress options
+    self.progress = {
+      isDragging: false,
+      handle: '.progress-handle',
+    };
+    
+    // Handle when the progress slider starts the change
+    self.progress.start = function(jqEvent, ui) {
+      // If the event is null, that means it was fired off programmatically
+      if (jqEvent != null) {
+        self.progress.isDragging = true;
+      }
+    }
+    
+    // Handle when the progress slider stops
+    self.progress.stop = function(jqEvent, ui) {
+      self.progress.isDragging = false;
+      
+      // Figure out where we should be
+      var percent = ui.value;
+      var position = self.currentlyPlaying.soundObj.durationEstimate * (percent / 100);
+      
+      // If the event is null, that means it was fired off programmatically  
+      if (jqEvent != null) {
+        self.currentlyPlaying.soundObj.setPosition(position);
+      }
+    };
+    
+    ///////////////////////////////////////////////////////////
+    // Volume slider stuff
+    
+    // Volume defaults
+    self.volume = {
+      handle: '.volume-handle',
+      startValue: 75,
+    };
+    
+    // Handler when volume slider is moved
+    self.volume.slide = function(jqEvent, ui) {
+      self.currentlyPlaying.soundObj.setVolume(ui.value);
+    }
+    
+    ///////////////////////////////////////////////////////////
     // Private functions
+    
+    function playlistHasSongs() {
+      return (self.playlist.length > 0);
+    }
     
     // This goes through each of the items in the list and
     // sets up the sound for it
@@ -242,39 +296,12 @@
     // Sets up the two sliders on the player
     var setUpSliders = function() {
       setUpProgressSlider();
+      setUpVolumeSlider();
     }
     
     // Sets up the progress slider and attaches handlers to the
     // slider handle
     var setUpProgressSlider = function() {
-      // Set up the progress object. I don't know if this is good or not
-      self.progress = {
-        isDragging: false,
-        handle: '.progress-handle',
-        
-        // Fire when the slider starts changing
-        start: function(jqEvent, ui) {
-          // If the event is null, that means it was fired off programmatically
-          if (jqEvent != null) {
-            self.progress.isDragging = true;
-          }
-        },
-        
-        // Fire when the slider stops changing
-        stop: function(jqEvent, ui) {
-          self.progress.isDragging = false;
-          
-          // Figure out where we should be
-          var percent = ui.value;
-          var position = self.currentlyPlaying.soundObj.durationEstimate * (percent / 100);
-          
-          // If the event is null, that means it was fired off programmatically  
-          if (jqEvent != null) {
-            self.currentlyPlaying.soundObj.setPosition(position);
-          }
-        }
-      };
-      
       // Get the element and get a handle on the slider
       var sliderElement = $('.progress', self.playerElement);
       var slider = sliderElement.slider(self.progress);
@@ -282,13 +309,19 @@
       self.progress.slider = slider;
     }
     
+    var setUpVolumeSlider = function() {
+      var volumeElement = $('.volume', self.playerElement);
+      var volume = volumeElement.slider(self.volume);
+      
+      self.volume.volume = volume;
+      
+      self.currentlyPlaying.soundObj.setVolume(self.volume.startValue);
+    };
     
     // Constructor, of sorts.
     var init = function() {
       addPlaylistSongs();
-      
       setUpSliders();
-      
       hookUpControls();
     }
     
