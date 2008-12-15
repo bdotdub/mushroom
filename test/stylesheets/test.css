@@ -26,6 +26,10 @@ body {
   padding: 5px;
 }
 
+#player ul li {
+  list-style-type: none;
+}
+
 #player ul li a {
   display: block;
   font-size: 18px;
@@ -46,7 +50,7 @@ body {
 }
 
 #player .status .loading {
-  position: absolute;
+  float: left;
   height: 19px;
   background-color: #eef;
 }
