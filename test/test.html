@@ -18,6 +18,24 @@
     soundManager.url = '../swf/soundmanager2/';
     soundManager.onload = function() {
       $('#player').mushroom();
+      
+      // Show pause when playing
+      $('.play').click(function() {
+        $(this).hide();
+        $('.pause').show()
+      });
+      
+      // Show play when paused
+      $('.pause').click(function() {
+        $(this).hide();
+        $('.play').show();
+      });
+      
+      // Show play when stopped
+      $('.stop').click(function() {
+        $('.pause').hide();
+        $('.play').show();
+      });
     };
   </script>
   
@@ -28,8 +46,8 @@
     <div>
       <span class="back">&larr;</span>
       <span class="play">play</span>
+      <span class="pause" style="display:none">pause</span>
       <span class="stop">stop</span>
-      <span class="pause">pause</span>
       <span class="next">&rarr;</span>
     </div>
     

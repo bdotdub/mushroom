@@ -1,7 +1,13 @@
+/*
+   mushroom
+   --------------------------------------------
+   http://github.com/bdotdub/mushroom
 
-// Modules/classes, namely $Spore and $Mushroom are modeled after
-// Douglas Crockford module pattern. Read more about it here:
-//  http://yuiblog.com/blog/2007/06/12/module-pattern/
+   Copyright (c) 2008, Benny Wong. All rights reserved.
+   Code licensed under the GPLv3:
+   http://www.gnu.org/licenses/gpl-3.0.html
+
+*/
 
 (function($) {
   $.fn.mushroom = function(options) {
@@ -128,7 +134,7 @@
         self.currentlyPlaying.play();
         
         // Set the volume to the current volume
-        self.currentlyPlaying.soundObj.setVolume(self.volume.volume.slider("value"))
+        self.currentlyPlaying.soundObj.setVolume(self.volume.slider.slider("value"))
       }
     }
     
@@ -159,7 +165,8 @@
     // IoC endpoints
     
     this.songStopped = function() {
-      self.progress.slider.slider("moveTo", 0)
+      self.progress.slider.slider("moveTo", 0);
+      $('.loading', self.playerElement).css('width', 0);
     }
     
     this.loadingProgress = function() {
@@ -313,7 +320,7 @@
       var volumeElement = $('.volume', self.playerElement);
       var volume = volumeElement.slider(self.volume);
       
-      self.volume.volume = volume;
+      self.volume.slider = volume;
       
       self.currentlyPlaying.soundObj.setVolume(self.volume.startValue);
     };
