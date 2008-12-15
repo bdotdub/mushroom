@@ -140,22 +140,20 @@
     
     // Sound object handlers
     this.goToNextSong = function() {
-      this.goToSong('NEXT');
+      self.goToSong('NEXT');
     };
     
     this.goToPreviousSong = function() {
-      this.goToSong('BACK');
+      self.goToSong('BACK');
     };
     
     this.goToSong = function(direction) {
       self.currentlyPlaying.stop();
       self.currentlyPlaying = (direction == 'BACK') ?
         self.currentlyPlaying.prevSong : self.currentlyPlaying.nextSong;
-
       if (self.currentlyPlaying == null && self.options.repeat) {
         self.currentlyPlaying = self.playlist[0];
       }
-      
       if (self.currentlyPlaying != null) {
         self.currentlyPlaying.play();
       }
