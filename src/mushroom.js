@@ -113,6 +113,10 @@
     // Public functions
     
     this.play = function(spore) {
+      if (self.currentlyPlaying == null) {
+        self.currentlyPlaying = spore;
+      }
+      
       // Check if it's the same spore that was clicked
       if (spore == self.currentlyPlaying) {
         // If it's playing, pause it
