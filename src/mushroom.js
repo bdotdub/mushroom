@@ -152,12 +152,18 @@
     };
     
     this.goToSong = function(direction) {
+      // Stop the song and assign it the [next|prev] song
       self.currentlyPlaying.stop();
       self.currentlyPlaying = (direction == 'BACK') ?
         self.currentlyPlaying.prevSong : self.currentlyPlaying.nextSong;
+
+      // If it's the end or beginning and we repeat, we need to loop back around.
+      // I can't help but feel this next block should be combined with the block
+      // above this. anyway, who cares
       if (self.currentlyPlaying == null && self.options.repeat) {
-        self.currentlyPlaying = self.playlist[0];
+        self.currentlyPlaying = (direction == 'BACK') ? self.playlist[self.playlist.length - 1] : self.playlist[0];
       }
+
       if (self.currentlyPlaying != null) {
         self.currentlyPlaying.play();
       }
