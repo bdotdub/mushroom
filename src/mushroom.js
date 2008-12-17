@@ -140,6 +140,12 @@
         // Set the volume to the current volume
         self.currentlyPlaying.soundObj.setVolume(self.volume.slider.slider("value"))
       }
+
+      // Now check if it's already loaded. If so, we need to set the loaded bar
+      // ahead
+      if (self.currentlyPlaying.soundObj.bytesLoaded == self.currentlyPlaying.soundObj.bytesTotal) {
+        setLoadingProgress(100);
+      }
     }
     
     // Sound object handlers
@@ -178,7 +184,8 @@
     }
     
     this.loadingProgress = function() {
-      $('.loading', self.playerElement).css("width", (this.bytesLoaded * 100 / this.bytesTotal) + "%");
+      var percentage = this.bytesLoaded * 100 / this.bytesTotal;
+      setLoadingProgress(percentage);
     };
     
     this.playingProgress = function() {
@@ -240,6 +247,11 @@
     
     function playlistHasSongs() {
       return (self.playlist.length > 0);
+    }
+
+    // Sets the percentage of the song that has been loaded
+    function setLoadingProgress(percentage) {
+      $('.loading', self.playerElement).css("width", percentage + "%");
     }
     
     // This goes through each of the items in the list and
