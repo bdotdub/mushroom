@@ -56,9 +56,14 @@
       self.soundObj.stop();
     }
     
-    // Stop it
+    // Pause it
     this.pause = function() {
       self.soundObj.pause();
+    }
+
+    // Set volume
+    this.setVolume = function(volume) {
+      self.soundObj.setVolume(volume);
     }
     
     // Check if it's playing
@@ -138,7 +143,7 @@
         self.currentlyPlaying.play();
         
         // Set the volume to the current volume
-        self.currentlyPlaying.soundObj.setVolume(self.volume.slider.slider("value"))
+        self.currentlyPlaying.setVolume(self.volume.getVolume());
       }
 
       // Now check if it's already loaded. If so, we need to set the loaded bar
@@ -171,16 +176,17 @@
       }
 
       if (self.currentlyPlaying != null) {
-        self.currentlyPlaying.play();
+        self.play(self.currentlyPlaying);
       }
     };
     
     ///////////////////////////////////////////////////////////
     // IoC endpoints
     
+    // This is called whenever 
     this.songStopped = function() {
-      self.progress.slider.slider("moveTo", 0);
-      $('.loading', self.playerElement).css('width', 0);
+      self.progress.setProgress(0);
+      setLoadingProgress(0);
     }
     
     this.loadingProgress = function() {
@@ -193,7 +199,7 @@
       
       // If the handle is not being dragged, the update it
       if (!self.progress.isDragging) {
-        self.progress.slider.slider("moveTo", currentPosition);
+        self.progress.setProgress(currentPosition);
       }
     }
     
@@ -227,6 +233,11 @@
         self.currentlyPlaying.soundObj.setPosition(position);
       }
     };
+
+    // Sets the loading handle position
+    self.progress.setProgress = function(percentage) {
+      self.progress.slider.slider("moveTo", percentage);
+    };
     
     ///////////////////////////////////////////////////////////
     // Volume slider stuff
@@ -235,12 +246,16 @@
     self.volume = {
       handle: '.volume-handle',
       startValue: 75,
+      slider: null
     };
     
     // Handler when volume slider is moved
     self.volume.slide = function(jqEvent, ui) {
-      self.currentlyPlaying.soundObj.setVolume(ui.value);
+      self.currentlyPlaying.setVolume(ui.value);
     }
+
+    // Accessor for volume
+    self.volume.getVolume = function() { self.volume.slider.slider('value'); }
     
     ///////////////////////////////////////////////////////////
     // Private functions
@@ -342,7 +357,7 @@
       
       self.volume.slider = volume;
       
-      self.currentlyPlaying.soundObj.setVolume(self.volume.startValue);
+      self.currentlyPlaying.setVolume(self.volume.startValue);
     };
     
     // Constructor, of sorts.
