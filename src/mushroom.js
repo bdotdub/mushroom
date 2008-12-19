@@ -141,9 +141,6 @@
         // Assign it as the currently playing and play it
         self.currentlyPlaying = spore;
         self.currentlyPlaying.play();
-        
-        // Set the volume to the current volume
-        self.currentlyPlaying.setVolume(self.volume.getVolume());
       }
 
       // Now check if it's already loaded. If so, we need to set the loaded bar
@@ -151,6 +148,9 @@
       if (self.currentlyPlaying.soundObj.bytesLoaded == self.currentlyPlaying.soundObj.bytesTotal) {
         setLoadingProgress(100);
       }
+        
+      // Set the volume to the current volume. Shouldn't be bad
+      self.currentlyPlaying.setVolume(self.volume.getVolume());
     }
     
     // Sound object handlers
@@ -173,10 +173,6 @@
       // above this. anyway, who cares
       if (self.currentlyPlaying == null && self.options.repeat) {
         self.currentlyPlaying = (direction == 'BACK') ? self.playlist[self.playlist.length - 1] : self.playlist[0];
-      }
-
-      if (self.currentlyPlaying != null) {
-        self.play(self.currentlyPlaying);
       }
     };
     
@@ -255,7 +251,7 @@
     }
 
     // Accessor for volume
-    self.volume.getVolume = function() { self.volume.slider.slider('value'); }
+    self.volume.getVolume = function() { return self.volume.slider.slider('value'); }
     
     ///////////////////////////////////////////////////////////
     // Private functions
@@ -327,11 +323,13 @@
       // Back button
       $('.back', self.playerElement).click(function() {
         self.goToPreviousSong();
+        self.play();
       });
       
       // Next button
       $('.next', self.playerElement).click(function() {
         self.goToNextSong();
+        self.play();
       });
     };
     
