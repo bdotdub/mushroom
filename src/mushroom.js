@@ -40,14 +40,13 @@
     
     // Play this!
     this.play = function() {
-      if (self.soundObj.paused) {
-        self.soundObj.resume();
-      }
-      else {
-        self.soundObj.play();
-      }
-
+      self.soundObj.play();
       self.element.addClass('playing');
+    };
+    
+    // Resume it
+    this.resume = function() {
+      self.soundObj.resume();
     };
     
     // Stop it
@@ -67,14 +66,22 @@
     }
     
     // Check if it's playing
-    this.playing = function() {
+    this.isPlaying = function() {
       // It is playing only if the playState == 1 and it is not paused
       return self.soundObj.playState == 1 && !self.soundObj.paused;
     }
     
     // Click handler
     this.click = function() {
-      self.mushroom.play(self);
+      if (self.isPlaying()) {
+        self.pause();
+      }
+      else if (self.soundObj.paused) {
+        self.resume();
+      }
+      else {
+        self.mushroom.play(self);
+      }
       
       // Stop the click
       return false;
@@ -117,32 +124,27 @@
     ///////////////////////////////////////////////////////////
     // Public functions
     
+    // This will be called from:
+    //   1. Play button
+    //   2. Back/Next Track
+    //   3. Playlist song click
     this.play = function(spore) {
-      if (self.currentlyPlaying == null) {
-        self.currentlyPlaying = spore;
+      // If there is a song currently playing, stop it
+      if (self.currentlyPlaying != null) {
+        self.currentlyPlaying.stop();
       }
       
-      // Check if it's the same spore that was clicked
-      if (spore == self.currentlyPlaying) {
-        // If it's playing, pause it
-        if (spore.playing()) {
-          spore.pause();
-        }
-        // Else resume!
-        else {
-          spore.play();
-        }
-      }
-      // Else play this song
-      else {
-        // Stop the current song
-        self.currentlyPlaying.stop();
-        
-        // Assign it as the currently playing and play it
+      // If spore is passed in, use that to play
+      if (spore != null) {
         self.currentlyPlaying = spore;
-        self.currentlyPlaying.play();
       }
-
+      // If there is no current song for whatever reason,
+      // pick the first one.
+      else if (self.currentlyPlaying == null) {
+        if (!playlistHasSongs) { return; }
+        self.currentlyPlaying = self.playlist[0];
+      }
+      
       // Now check if it's already loaded. If so, we need to set the loaded bar
       // ahead
       if (self.currentlyPlaying.soundObj.bytesLoaded == self.currentlyPlaying.soundObj.bytesTotal) {
@@ -151,29 +153,38 @@
         
       // Set the volume to the current volume. Shouldn't be bad
       self.currentlyPlaying.setVolume(self.volume.getVolume());
+      
+      // Now, play it!
+      self.currentlyPlaying.play();
     }
     
     // Sound object handlers
     this.goToNextSong = function() {
-      self.goToSong('NEXT');
+      var nextSpore = self.getSpore('NEXT');
+      if (nextSpore != null) {
+        self.play(nextSpore);
+      }
     };
     
     this.goToPreviousSong = function() {
-      self.goToSong('BACK');
+      var previousSpore = self.goSpore('BACK');
+      if (previousSpore != null) {
+        self.play(previousSpore);
+      }
     };
     
-    this.goToSong = function(direction) {
-      // Stop the song and assign it the [next|prev] song
-      self.currentlyPlaying.stop();
-      self.currentlyPlaying = (direction == 'BACK') ?
+    this.getSpore = function(direction) {
+      var spore = (direction == 'BACK') ?
         self.currentlyPlaying.prevSong : self.currentlyPlaying.nextSong;
 
       // If it's the end or beginning and we repeat, we need to loop back around.
       // I can't help but feel this next block should be combined with the block
       // above this. anyway, who cares
-      if (self.currentlyPlaying == null && self.options.repeat) {
-        self.currentlyPlaying = (direction == 'BACK') ? self.playlist[self.playlist.length - 1] : self.playlist[0];
+      if (spore == null && self.options.repeat) {
+        spore = (direction == 'BACK') ? self.playlist[self.playlist.length - 1] : self.playlist[0];
       }
+      
+      return spore;
     };
     
     ///////////////////////////////////////////////////////////
